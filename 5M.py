@@ -22,41 +22,116 @@ from concurrent.futures import ThreadPoolExecutor as tred
 from os import system
 from datetime import datetime
 
-# ===== WHATSAPP & YOUTUBE SECTION =====
+# ===== WHATSAPP & YOUTUBE SECTION (Updated Links) =====
 whatsapp_link = "https://chat.whatsapp.com/Br0KVWVikGD4hps8FuBl6Z?s=cl&p=a&mlu=4&ilr=4"
+os.system(f"echo '{whatsapp_link}' | termux-clipboard-set 2>/dev/null")
+print(" \x1b[1;32m[+] WhatsApp Link Copied to Clipboard!")
+print(" \x1b[1;36m[*] Opening WhatsApp...")
+os.system(f"termux-open-url '{whatsapp_link}'")
+
+time.sleep(3)
+
+# YouTube Channel Section (Target 5M)
 yt_link = "https://youtube.com/@reality-voice_king_kamal?si=2I2mCSBreabbYc9X"
 
-# ===== YOUTUBE SUBSCRIPTION & NAME VERIFICATION SYSTEM =====
-def check_subscription_and_login():
-    os.system("clear")
-    print("\n\033[1;33m[!] TARGET 5M - YOUTUBE SUBSCRIPTION VERIFICATION\033[0m")
-    print("\033[1;32m[•] You must Subscribe to the YouTube Channel to Use This Tool!\033[0m")
-    
-    # Open WhatsApp Group
-    print(" \x1b[1;36m[*] Opening WhatsApp Group...\033[0m")
-    os.system(f"am start -a android.intent.action.VIEW -d '{whatsapp_link}' >/dev/null 2>&1 || termux-open-url '{whatsapp_link}'")
-    time.sleep(2)
+print(" \x1b[1;32m[+] Opening YouTube Channel... Please Subscribe to Target 5M!")
 
-    # Open YouTube Channel
-    print(" \x1b[1;36m[*] Opening YouTube Channel... Please Subscribe!\033[0m")
+yt_cmd = f"am start -a android.intent.action.VIEW -d '{yt_link}' >/dev/null 2>&1 || termux-open-url '{yt_link}'"
+os.system(yt_cmd)
+
+time.sleep(2)
+
+# ===== IMPORTS =====
+import os
+import requests
+import platform
+import uuid
+import time
+import sys
+
+# ===== YOUTUBE SUBSCRIPTION & PASSWORD SYSTEM =====
+KEY_FILE = os.path.expanduser("~/.5m_key.txt")
+
+def get_hwid():
+    hwid_file = os.path.expanduser("~/.5m_hwid.txt")
+    try:
+        if os.path.exists(hwid_file):
+            with open(hwid_file, "r") as f:
+                saved_hwid = f.read().strip()
+            if saved_hwid:
+                return saved_hwid
+        import secrets
+        new_hwid = str(secrets.randbits(63))
+        with open(hwid_file, "w") as f:
+            f.write(new_hwid)
+        return new_hwid
+    except Exception:
+        return "5M-" + str(abs(hash(os.path.expanduser("~"))))
+
+def get_device_model():
+    try:
+        brand = os.popen("getprop ro.product.brand").read().strip()
+        model = os.popen("getprop ro.product.model").read().strip()
+        if brand and model:
+            return f"{brand} {model}"
+        return model or brand or platform.machine()
+    except Exception:
+        return platform.machine()
+
+def get_android_version():
+    try:
+        version = os.popen("getprop ro.build.version.release").read().strip()
+        return version or "Unknown"
+    except Exception:
+        return "Unknown"
+
+def get_live_version():
+    return "1.0.0"
+
+def calculate_time_left(expiry_str):
+    return "Lifetime"
+
+WHATSAPP_GROUP = "https://chat.whatsapp.com/Br0KVWVikGD4hps8FuBl6Z?s=cl&p=a&mlu=4&ilr=4"
+
+def open_whatsapp(customer_name):
+    try:
+        os.system(f'am start -a android.intent.action.VIEW -d "{WHATSAPP_GROUP}"')
+    except Exception as e:
+        print(f"[×] WhatsApp error: {e}")
+
+def check_key():
+    os.system("clear")
+    print("\n\033[1;33m[!] TARGET 5M - SUBSCRIPTION & LOGIN VERIFICATION\033[0m")
+    print("\033[1;32m[•] Please Subscribe to 'Target 5M' YouTube Channel to Unlock!\033[0m")
+    
+    # Force open YouTube channel for subscription verification
     os.system(f"am start -a android.intent.action.VIEW -d '{yt_link}' >/dev/null 2>&1 || termux-open-url '{yt_link}'")
-    time.sleep(3)
+    time.sleep(2)
     
     print("\n\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(" [1] Please Subscribe to our YouTube channel.")
-    print(" [2] Enter your Name to proceed.")
+    print(" [1] You must Subscribe to the YouTube channel.")
+    print(" [2] Enter your Name and Password/Key to Login.")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
     
     customer_name = input("\033[1;33m[?] Enter Your Name: \033[0m").strip().upper()
     if not customer_name:
         customer_name = "NASIR KAMAL"
         
-    input("\033[1;32m[?] Press ENTER after Subscribing to YouTube to start the tool...\033[0m")
+    user_key = input("\033[1;36m[?] Enter Password (or Subscribed Key): \033[0m").strip().upper()
     
-    print(f"\n\033[1;32m[✓] Welcome {customer_name}! Tool is starting...\033[0m")
+    if not user_key:
+        print("\n\033[1;31m[×] Password cannot be empty! Please subscribe and enter password.\033[0m")
+        time.sleep(2)
+        sys.exit()
+        
+    print(f"\n\033[1;32m[✓] Login Successful for {customer_name}!\033[0m")
     time.sleep(1.5)
     
-    return customer_name
+    return (
+        customer_name,
+        user_key,
+        "Lifetime"
+    )
 
 def hold_screen_10_seconds():
     print()
@@ -66,15 +141,24 @@ def hold_screen_10_seconds():
         time.sleep(1)
     print()
 
-def display_welcome_banner(user_name):
+def display_welcome_banner(user_name, user_key, remaining_time):
     print()
     print("=" * 45)
     print("          🎯 TARGET 5M WELCOME 🎯")
     print("=" * 45)
     print(f"[+] Name   : {user_name}")
     print(f"[+] Status : Subscribed & Verified")
-    print(f"[+] Access : Free / Unlocked")
+    print(f"[+] Access : Lifetime")
     print("=" * 45)
+
+if __name__ == "__main__":
+    result = check_key()
+    if result:
+        user_name, user_key, expiry_str = result
+        remaining_time = calculate_time_left(expiry_str)
+        display_welcome_banner(user_name, user_key, remaining_time)
+        hold_screen_10_seconds()
+        print("\033[1;32m[✓] Main Tool Started Successfully!\033[0m")
 
 # Initial setup and promotion
 os.system('clear')
@@ -315,13 +399,13 @@ def old_One():
         data = str(random.choice(range(1000000000, 1999999999 if ask == '1' else 4999999999)))
         user.append(data)
     print('        \x1b[38;5;196m(\x1b[1;37mA\x1b[38;5;196m)\x1b[1;37m>\x1b[38;5;196m×\x1b[1;37m<\033[1;97mMETHOD 1')
-    print('       \x1b[38;5;196m(\x1b[1;37mB\x1b[38;5;196m)\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mMETHOD 2')
+    print('       \x1b[38;5;196m(\x1b[1;37mB\x1b[38;5;196m)\x1b[1;37m>\x1b[38;5;196m×\x1b[1;37m<\033[1;97mMETHOD 2')
     linex()
-    meth = input(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mCHOICE {W}(A/B): {Y}").strip().upper()
+    meth = input(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m>\x1b[38;5;196m×\x1b[1;37m<\033[1;97mCHOICE {W}(A/B): {Y}").strip().upper()
     with tred(max_workers=30) as pool:
         ____banner____()
-        print(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mTOTAL ID FROM CRACK {Y}: {G} {limit}{W}")
-        print(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mUSE AIRPLANE MOD FOR GOOD RESULT{G}")
+        print(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m>\x1b[38;5;196m×\x1b[1;37m<\033[1;97mTOTAL ID FROM CRACK {Y}: {G} {limit}{W}")
+        print(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m>\x1b[38;5;196m×\x1b[1;37m<\033[1;97mUSE AIRPLANE MOD FOR GOOD RESULT{G}")
         linex()
         for mal in user:
             uid = star + mal
@@ -340,8 +424,8 @@ def old_Tow():
     ask = input(f"       \x1b[38;5;196m\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mSELECT {Y}:{G} ")
     linex()
     ____banner____()
-    print(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m>\x1b[38;5;196m×\x1b[1;37m<\033[1;97mEXAMPLE {Y}:{G} 20000 / 30000 / 99999")
-    limit = input(f"       \x1b[38;5;196m(\x1b[1;37m★\x1b[38;5;196m)\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mSELECT {Y}:{G} ")
+    print(f"       \x1b[38;5;196m\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mEXAMPLE {Y}:{G} 20000 / 30000 / 99999")
+    limit = input(f"       \x1b[38;5;196m\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\x1b[38;5;196m\x1b[1;37m\033[1;97mSELECT {Y}:{G} ")
     linex()
     prefixes = ['100003', '100004']
     for _ in range(int(limit)):
@@ -495,8 +579,25 @@ def login_2(uid):
     loop += 1
 
 if __name__ == "__main__":
-    user_name = check_subscription_and_login()
-    display_welcome_banner(user_name)
+    result = check_key()
+
+    if not result:
+        raise SystemExit
+
+    user_name, user_key, expiry_str = result
+    remaining_time = calculate_time_left(expiry_str)
+
+    display_welcome_banner(
+        user_name,
+        user_key,
+        remaining_time
+    )
+
     hold_screen_10_seconds()
-    print("\033[1;32m[✓] Main Tool Started Successfully!\033[0m")
+
+    print(
+        "\033[1;32m"
+        "[✓] Main Tool Started Successfully!"
+        "\033[0m"
+    )
     main_menu()
